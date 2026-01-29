@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:copy:*)",
+      "Bash(brew install:*)",
+      "Bash(npx supabase:*)",
+      "Bash(open:*)",
+      "Bash(docker info:*)",
+      "Bash(supabase status:*)",
+      "Bash(printf:*)",
+      "Bash(node:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "spawner"
+  ]
+}
