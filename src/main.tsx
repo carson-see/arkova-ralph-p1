@@ -1,42 +1,85 @@
 /**
  * Ralph Application Entry Point
  *
- * P1 (Bedrock) is complete.
- * P2+ UI needs to be built with Tailwind + Shadcn/ui.
+ * Hash-based routing with authentication state management.
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 
+import { AuthProvider } from '@/components/auth/AuthProvider';
+import { AuthPage } from '@/pages/AuthPage';
+
 /**
- * Placeholder App
- * 
- * P2 (Identity & Access) UI to be implemented with proper tech stack:
- * - Tailwind CSS
- * - Shadcn/ui components
- * - Lucide React icons
+ * Get current path from URL fragment
  */
-function App() {
+function getCurrentPath(): string {
+  const fullUrl = window.location.href;
+  const hashIndex = fullUrl.indexOf('#');
+  if (hashIndex === -1) return '/';
+  return fullUrl.slice(hashIndex + 1) || '/';
+}
+
+/**
+ * Simple hash-based router
+ */
+function useHashRouter() {
+  const [path, setPath] = useState(getCurrentPath());
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setPath(getCurrentPath());
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  return path;
+}
+
+/**
+ * Placeholder pages (to be implemented in subsequent stories)
+ */
+function PlaceholderPage({ title }: { title: string }) {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center">
-      <div className="text-center max-w-md p-8">
-        <h1 className="text-3xl font-bold text-primary mb-4">Arkova Ralph</h1>
-        <p className="text-muted-foreground mb-6">
-          Priority 1 (Bedrock) complete. Priority 2+ UI pending.
-        </p>
-        <div className="bg-card border rounded-lg p-4 text-left">
-          <h2 className="font-semibold mb-2">P1 Status ✅</h2>
-          <ul className="text-sm text-muted-foreground space-y-1">
-            <li>• Schema + Migrations</li>
-            <li>• RLS Policies</li>
-            <li>• Seed Data</li>
-            <li>• Validators + Tests</li>
-            <li>• Documentation</li>
-          </ul>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-background">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-2">{title}</h1>
+        <p className="text-muted-foreground">Coming in next story</p>
       </div>
     </div>
+  );
+}
+
+/**
+ * Route configuration
+ */
+const routes: Record<string, React.ComponentType> = {
+  '/': AuthPage,
+  '/auth': AuthPage,
+  '/auth/callback': AuthPage,
+  '/onboarding/role': () => <PlaceholderPage title="Role Selection" />,
+  '/onboarding/org': () => <PlaceholderPage title="Organization Setup" />,
+  '/vault': () => <PlaceholderPage title="Your Vault" />,
+  '/org': () => <PlaceholderPage title="Organization Dashboard" />,
+  '/org/pending-review': () => <PlaceholderPage title="Pending Review" />,
+};
+
+/**
+ * App with routing
+ */
+function App() {
+  const path = useHashRouter();
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  
+  // Find matching route or default to auth
+  const RouteComponent = routes[normalizedPath] || AuthPage;
+
+  return (
+    <AuthProvider>
+      <RouteComponent />
+    </AuthProvider>
   );
 }
 

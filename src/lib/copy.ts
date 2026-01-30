@@ -50,6 +50,36 @@ export const ACTION_LABELS = {
   VERIFY_ANCHOR: 'Verify Record',
   REVOKE_ANCHOR: 'Revoke Record',
   DOWNLOAD_PROOF: 'Download Proof',
+  SIGN_IN: 'Sign In',
+  SIGN_UP: 'Create Account',
+  SIGN_OUT: 'Sign Out',
+} as const;
+
+// =============================================================================
+// AUTHENTICATION (P2-S1)
+// =============================================================================
+
+export const AUTH_LABELS = {
+  SIGNIN_TITLE: 'Welcome back',
+  SIGNIN_DESC: 'Sign in to your account to continue',
+  SIGNUP_TITLE: 'Create an account',
+  SIGNUP_DESC: 'Get started with Arkova',
+  EMAIL: 'Email',
+  PASSWORD: 'Password',
+  OR_CONTINUE: 'Or continue with',
+  CONTINUE_GOOGLE: 'Continue with Google',
+  NO_ACCOUNT: "Don't have an account? Sign up",
+  HAS_ACCOUNT: 'Already have an account? Sign in',
+  BACK_TO_SIGNIN: 'Back to sign in',
+} as const;
+
+export const AUTH_MESSAGES = {
+  INVALID_EMAIL: 'Please enter a valid email address',
+  PASSWORD_MIN_LENGTH: 'Password must be at least 8 characters',
+  INVALID_CREDENTIALS: 'Invalid email or password',
+  GENERIC_ERROR: 'Something went wrong. Please try again.',
+  CHECK_EMAIL_TITLE: 'Check your email',
+  CHECK_EMAIL_DESC: 'We sent you a confirmation link. Please check your email to complete sign up.',
 } as const;
 
 // =============================================================================
