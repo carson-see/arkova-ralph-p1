@@ -19,6 +19,7 @@ import { PendingReviewPage } from './pages/PendingReviewPage';
 import { VaultPage } from './pages/VaultPage';
 import { OrgDashboardPage } from './pages/OrgDashboardPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { VerifyPage } from './pages/VerifyPage';
 
 /**
  * Simple hash-based router
@@ -44,6 +45,7 @@ function useHashRouter() {
 const routes: Record<string, React.ComponentType> = {
   '/': AuthPage,
   '/auth': AuthPage,
+  '/verify': VerifyPage,
   '/onboarding/role': RoleSelectionPage,
   '/onboarding/org': OrgOnboardingPage,
   '/org/pending-review': PendingReviewPage,
