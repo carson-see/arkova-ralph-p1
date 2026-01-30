@@ -10,6 +10,12 @@ import './index.css';
 
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { AuthPage } from '@/pages/AuthPage';
+import { RoleSelectionPage } from '@/pages/onboarding/RoleSelectionPage';
+import { OrgSetupPage } from '@/pages/onboarding/OrgSetupPage';
+import { VaultPage } from '@/pages/vault/VaultPage';
+import { AffiliationsPage } from '@/pages/vault/AffiliationsPage';
+import { OrgDashboardPage } from '@/pages/org/OrgDashboardPage';
+import { PendingReviewPage } from '@/pages/org/PendingReviewPage';
 
 /**
  * Get current path from URL fragment
@@ -46,7 +52,7 @@ function PlaceholderPage({ title }: { title: string }) {
     <div className="min-h-screen flex items-center justify-center bg-background">
       <div className="text-center">
         <h1 className="text-2xl font-bold mb-2">{title}</h1>
-        <p className="text-muted-foreground">Coming in next story</p>
+        <p className="text-muted-foreground">Coming soon</p>
       </div>
     </div>
   );
@@ -59,11 +65,23 @@ const routes: Record<string, React.ComponentType> = {
   '/': AuthPage,
   '/auth': AuthPage,
   '/auth/callback': AuthPage,
-  '/onboarding/role': () => <PlaceholderPage title="Role Selection" />,
-  '/onboarding/org': () => <PlaceholderPage title="Organization Setup" />,
-  '/vault': () => <PlaceholderPage title="Your Vault" />,
-  '/org': () => <PlaceholderPage title="Organization Dashboard" />,
-  '/org/pending-review': () => <PlaceholderPage title="Pending Review" />,
+  
+  // Onboarding (P2)
+  '/onboarding/role': RoleSelectionPage,
+  '/onboarding/org': OrgSetupPage,
+  
+  // Individual Vault (P3)
+  '/vault': VaultPage,
+  '/affiliations': AffiliationsPage,
+  
+  // Organization (P5 placeholder)
+  '/org': OrgDashboardPage,
+  '/org/pending-review': PendingReviewPage,
+  '/org/settings': () => <PlaceholderPage title="Organization Settings" />,
+  
+  // Settings
+  '/settings': () => <PlaceholderPage title="Settings" />,
+  '/help': () => <PlaceholderPage title="Help & Support" />,
 };
 
 /**

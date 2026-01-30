@@ -69,6 +69,7 @@ User profiles linked to Supabase Auth.
 | `role` | user_role | YES | NULL | User role (immutable once set) |
 | `role_set_at` | timestamptz | YES | NULL | When role was assigned |
 | `org_id` | uuid | YES | NULL | Organization membership |
+| `is_public` | boolean | NO | false | Whether vault is publicly viewable |
 | `requires_manual_review` | boolean | NO | false | Admin review flag |
 | `manual_review_reason` | text | YES | NULL | Review reason |
 | `manual_review_completed_at` | timestamptz | YES | NULL | Review completion |
@@ -80,6 +81,7 @@ User profiles linked to Supabase Auth.
 - `idx_profiles_email` - email (unique)
 - `idx_profiles_org_id` - org_id (where not null)
 - `idx_profiles_role` - role (where not null)
+- `idx_profiles_is_public` - is_public (where true)
 - `idx_profiles_requires_review` - requires_manual_review (where true)
 
 **Constraints:**

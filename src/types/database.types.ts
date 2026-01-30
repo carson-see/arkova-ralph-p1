@@ -73,6 +73,7 @@ export interface Database {
           role: UserRole | null;
           role_set_at: string | null;
           org_id: string | null;
+          is_public: boolean;
           requires_manual_review: boolean;
           manual_review_reason: string | null;
           manual_review_completed_at: string | null;
@@ -88,6 +89,7 @@ export interface Database {
           role?: UserRole | null;
           role_set_at?: string | null;
           org_id?: string | null;
+          is_public?: boolean;
           requires_manual_review?: boolean;
           manual_review_reason?: string | null;
           manual_review_completed_at?: string | null;
@@ -103,6 +105,7 @@ export interface Database {
           role?: UserRole | null;
           role_set_at?: string | null;
           org_id?: string | null;
+          is_public?: boolean;
           requires_manual_review?: boolean;
           manual_review_reason?: string | null;
           manual_review_completed_at?: string | null;
@@ -263,6 +266,15 @@ export interface Database {
       is_org_admin: {
         Args: Record<string, never>;
         Returns: boolean;
+      };
+      update_profile_onboarding: {
+        Args: {
+          p_role: UserRole;
+          p_org_legal_name?: string | null;
+          p_org_display_name?: string | null;
+          p_org_domain?: string | null;
+        };
+        Returns: Json;
       };
     };
     Enums: {

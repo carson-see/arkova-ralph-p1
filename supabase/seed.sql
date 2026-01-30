@@ -117,7 +117,7 @@ VALUES
 -- PROFILES
 -- =============================================================================
 
-INSERT INTO profiles (id, email, full_name, role, role_set_at, org_id)
+INSERT INTO profiles (id, email, full_name, role, role_set_at, org_id, is_public)
 VALUES
   (
     'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
@@ -125,7 +125,8 @@ VALUES
     'Admin Demo',
     'ORG_ADMIN',
     now(),
-    '11111111-1111-1111-1111-111111111111'
+    '11111111-1111-1111-1111-111111111111',
+    false
   ),
   (
     'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
@@ -133,7 +134,8 @@ VALUES
     'User Demo',
     'INDIVIDUAL',
     now(),
-    NULL
+    NULL,
+    true  -- Public vault for demo
   ),
   (
     'cccccccc-cccc-cccc-cccc-cccccccccccc',
@@ -141,7 +143,8 @@ VALUES
     'Beta Admin',
     'ORG_ADMIN',
     now(),
-    '22222222-2222-2222-2222-222222222222'
+    '22222222-2222-2222-2222-222222222222',
+    false
   );
 
 -- =============================================================================
