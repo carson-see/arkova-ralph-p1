@@ -59,6 +59,7 @@ export const ACTION_LABELS = {
 export const NAV_LABELS = {
   DASHBOARD: 'Dashboard',
   MY_RECORDS: 'My Records',
+  ORG_RECORDS: 'Organization Records',
   ORGANIZATION: 'Organization',
   SETTINGS: 'Settings',
   HELP: 'Help',

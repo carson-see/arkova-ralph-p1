@@ -1204,3 +1204,42 @@ body {
   font-size: 0.875rem;
   color: var(--color-text-muted);
 }
+
+
+/* Org Dashboard Specific */
+.org-details {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.org-details dt {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  margin-top: var(--space-2);
+}
+
+.org-details dd {
+  font-weight: 500;
+}
+
+.team-placeholder {
+  padding: var(--space-4);
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.team-placeholder p {
+  margin-bottom: var(--space-2);
+}
+
+.text-muted {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+.loading-text {
+  color: var(--color-text-muted);
+  font-style: italic;
+}
