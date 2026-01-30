@@ -11,13 +11,14 @@
  * - ORG_ADMIN + approved → /org
  */
 
-import { createContext, useContext, useEffect, ReactNode } from 'react';
+import { createContext, useContext, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import type { Database } from '@/types/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
+type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
 
 interface AuthContextValue {
   user: User | null;
@@ -25,6 +26,8 @@ interface AuthContextValue {
   profile: Profile | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  updateProfile: (updates: ProfileUpdate) => Promise<{ error: Error | null }>;
+  refetchProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -43,7 +46,7 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const { user, session, loading: authLoading, signOut } = useAuth();
-  const { profile, loading: profileLoading } = useProfile();
+  const { profile, loading: profileLoading, updateProfile, refetch: refetchProfile } = useProfile();
 
   const loading = authLoading || (!!user && profileLoading);
 
@@ -55,6 +58,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
         profile,
         loading,
         signOut,
+        updateProfile,
+        refetchProfile,
       }}
     >
       {children}

@@ -8,6 +8,7 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { AuthProvider } from '@/components/auth/AuthProvider';
 import { AuthPage } from '@/pages/AuthPage';
 import { RoleSelectionPage } from '@/pages/onboarding/RoleSelectionPage';
@@ -103,6 +104,8 @@ function App() {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <App />
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>
   </React.StrictMode>
 );

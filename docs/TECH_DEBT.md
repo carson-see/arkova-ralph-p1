@@ -44,16 +44,17 @@ Stories P2-S1, P2-S2 mention "Playwright covers each route path" but no Playwrig
 
 ---
 
-### 4. Profile State Not Synced After Mutations
+### 4. ~~Profile State Not Synced After Mutations~~ ✅ FIXED
 **Priority:** MEDIUM  
 **Impact:** UI can show stale data  
 **Location:** `src/pages/vault/VaultPage.tsx`, `src/hooks/useProfile.ts`
 
-When `is_public` is toggled, only local state updates. The AuthProvider's profile doesn't know about the change. If user navigates away and back, or if another component reads profile, it shows stale data.
+~~When `is_public` is toggled, only local state updates. The AuthProvider's profile doesn't know about the change.~~
 
-**Fix:** Either:
-- Call `refetch()` from useProfile after successful mutation
-- Use a state management solution (Zustand, or realtime subscription)
+**Fixed:**
+- Added Supabase realtime subscription to useProfile for live updates
+- Added `updateProfile()` helper with optimistic updates and rollback
+- VaultPage now uses context's updateProfile instead of direct supabase calls
 
 ---
 
@@ -70,14 +71,17 @@ When `is_public` is toggled, only local state updates. The AuthProvider's profil
 
 ---
 
-### 6. No React Error Boundaries
+### 6. ~~No React Error Boundaries~~ ✅ FIXED
 **Priority:** LOW  
 **Impact:** Unhandled errors crash entire app  
 **Location:** `src/main.tsx`
 
-No error boundaries to catch and display errors gracefully.
+~~No error boundaries to catch and display errors gracefully.~~
 
-**Fix:** Add ErrorBoundary component wrapping routes.
+**Fixed:** Added `ErrorBoundary` component with:
+- Graceful error UI with retry/reload options
+- Development mode shows error details
+- Wraps entire App in main.tsx
 
 ---
 
@@ -118,3 +122,11 @@ Google OAuth redirectTo uses `window.location.origin` which is fine, but the cal
   - Tests run against local Supabase when available
   - Gracefully skip when Supabase not running (CI-friendly)
 - **Nav**: Added Affiliations link for INDIVIDUAL users in sidebar
+- **Profile sync**: Added realtime subscription + optimistic update helper
+  - useProfile now subscribes to postgres_changes
+  - updateProfile() handles optimistic UI with automatic rollback
+  - VaultPage uses context instead of direct supabase calls
+- **Error boundaries**: Added ErrorBoundary component
+  - Catches unhandled errors, shows friendly UI
+  - Try Again / Reload options
+  - Dev mode shows error details

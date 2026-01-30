@@ -49,41 +49,25 @@ function StatusBadge({ status }: { status: string }) {
 
 // Privacy toggle component (P3-S2)
 function PrivacyToggle() {
-  const { profile } = useAuthContext();
-  const [isPublic, setIsPublic] = useState(profile?.is_public ?? false);
+  const { profile, updateProfile } = useAuthContext();
   const [isUpdating, setIsUpdating] = useState(false);
 
-  useEffect(() => {
-    setIsPublic(profile?.is_public ?? false);
-  }, [profile?.is_public]);
+  // Use profile state directly - it's now synced via realtime subscription
+  const isPublic = profile?.is_public ?? false;
 
   const toggleVisibility = async () => {
     if (!profile) return;
 
-    const newValue = !isPublic;
-    
-    // Optimistic update
-    setIsPublic(newValue);
     setIsUpdating(true);
 
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ is_public: newValue })
-        .eq('id', profile.id);
+    // updateProfile handles optimistic updates and rollback
+    const { error } = await updateProfile({ is_public: !isPublic });
 
-      if (error) {
-        // Revert on error
-        setIsPublic(!newValue);
-        console.error('Failed to update visibility:', error);
-      }
-    } catch (err) {
-      // Revert on error
-      setIsPublic(!newValue);
-      console.error('Failed to update visibility:', err);
-    } finally {
-      setIsUpdating(false);
+    if (error) {
+      console.error('Failed to update visibility:', error);
     }
+
+    setIsUpdating(false);
   };
 
   return (
