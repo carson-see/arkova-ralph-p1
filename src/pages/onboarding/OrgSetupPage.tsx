@@ -56,7 +56,7 @@ const orgSetupSchema = z.object({
 type OrgSetupFormData = z.infer<typeof orgSetupSchema>;
 
 export function OrgSetupPage() {
-  const { user, profile } = useAuthContext();
+  const { user, profile, refetchProfile } = useAuthContext();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showDomainWarning, setShowDomainWarning] = useState(false);
@@ -126,7 +126,9 @@ export function OrgSetupPage() {
         throw rpcError;
       }
 
-      // Check if manual review is required (will be set by the function)
+      // Wait for profile to update before redirect (fixes HIGH-003)
+      await refetchProfile();
+
       // Redirect to org dashboard or pending review
       // The route guard will handle the redirect based on profile state
       window.location.href = '#/org';

@@ -56,7 +56,7 @@ function RoleCard({ role, icon, selected, onSelect, disabled }: RoleCardProps) {
 }
 
 export function RoleSelectionPage() {
-  const { profile } = useAuthContext();
+  const { profile, refetchProfile } = useAuthContext();
   const [selectedRole, setSelectedRole] = useState<RoleOption | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,6 +83,9 @@ export function RoleSelectionPage() {
           throw rpcError;
         }
 
+        // Wait for profile to update before redirect (fixes HIGH-002)
+        await refetchProfile();
+        
         // Redirect to vault
         window.location.href = '#/vault';
       } else {
