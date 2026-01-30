@@ -99,6 +99,30 @@ function shouldCheck(filePath: string): boolean {
   return false;
 }
 
+/**
+ * Check if a match is likely a Tailwind CSS class context (not UI copy)
+ * Examples to ignore: sm:block, lg:block, hidden md:block, inline-block
+ */
+function isTailwindContext(line: string, matchIndex: number, term: string): boolean {
+  // Get surrounding context (20 chars before and after)
+  const start = Math.max(0, matchIndex - 20);
+  const end = Math.min(line.length, matchIndex + term.length + 20);
+  const context = line.substring(start, end);
+
+  // Tailwind patterns to ignore:
+  // - Responsive prefixes: sm:block, md:block, lg:block, xl:block, 2xl:block
+  // - Display utilities: inline-block
+  // - className context
+  const tailwindPatterns = [
+    /\b(sm|md|lg|xl|2xl):block\b/i,
+    /\binline-block\b/i,
+    /className\s*=\s*["'`][^"'`]*block/i,
+    /\bclass\s*=\s*["'`][^"'`]*block/i,
+  ];
+
+  return tailwindPatterns.some(pattern => pattern.test(context));
+}
+
 function checkFile(filePath: string): Violation[] {
   const violations: Violation[] = [];
   const content = fs.readFileSync(filePath, 'utf-8');
@@ -118,9 +142,14 @@ function checkFile(filePath: string): Violation[] {
     // Look for strings in JSX text content and string literals
     for (const term of FORBIDDEN_TERMS) {
       const regex = new RegExp(term, 'gi');
-      const match = line.match(regex);
+      let match;
 
-      if (match) {
+      while ((match = regex.exec(line)) !== null) {
+        // Skip Tailwind CSS class contexts
+        if (term.includes('block') && isTailwindContext(line, match.index, match[0])) {
+          continue;
+        }
+
         // Check if it's in a string or JSX text (simple heuristic)
         // This is imperfect but catches most UI copy issues
         const hasString = line.includes('"') || line.includes("'") || line.includes('`');
@@ -133,6 +162,7 @@ function checkFile(filePath: string): Violation[] {
             term: match[0],
             context: line.trim().substring(0, 80),
           });
+          break; // Only report once per line per term
         }
       }
     }
