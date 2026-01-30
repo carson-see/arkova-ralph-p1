@@ -33,14 +33,19 @@
 
 ## Medium (Should Fix Soon)
 
-### 3. No E2E/Playwright Tests
+### 3. ~~No E2E/Playwright Tests~~ ✅ FIXED
 **Priority:** MEDIUM  
 **Impact:** DoD mentions Playwright coverage, none exists  
-**Location:** Missing `e2e/` or `playwright/` directory
+**Location:** `e2e/` directory
 
-Stories P2-S1, P2-S2 mention "Playwright covers each route path" but no Playwright config or tests exist.
+~~Stories P2-S1, P2-S2 mention "Playwright covers each route path" but no Playwright config or tests exist.~~
 
-**Fix:** Add Playwright setup and basic smoke tests for auth flows.
+**Fixed:**
+- Added Playwright config and `e2e/` directory
+- Auth smoke tests: form display, mode switching, validation
+- Route guard tests: unauthenticated redirect
+- Copy compliance tests: no forbidden terms
+- Scripts: `npm run test:e2e` and `npm run test:e2e:ui`
 
 ---
 
@@ -111,7 +116,7 @@ Google OAuth redirectTo uses `window.location.origin` which is fine, but the cal
 2. ✅ Fix lint:copy false positive (added Tailwind context detection)
 3. ✅ Implement real RLS tests (17 tests for P2-S4 compliance - run with Supabase)
 4. ✅ Add Affiliations nav link
-5. 🔲 Consider: Playwright setup (can defer to P4/P5)
+5. ✅ Playwright setup with auth smoke tests
 
 ---
 
@@ -130,3 +135,7 @@ Google OAuth redirectTo uses `window.location.origin` which is fine, but the cal
   - Catches unhandled errors, shows friendly UI
   - Try Again / Reload options
   - Dev mode shows error details
+- **Playwright E2E**: Added Playwright test infrastructure
+  - `e2e/auth.spec.ts` with auth form and route guard tests
+  - Copy compliance tests for forbidden terms
+  - `npm run test:e2e` / `npm run test:e2e:ui` scripts
