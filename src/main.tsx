@@ -1,28 +1,87 @@
 /**
  * Ralph Application Entry Point
  *
- * This is a minimal entry point for the Bedrock (P1) phase.
- * The focus of P1 is database schema, RLS, types, and documentation.
- * Full UI will be built in subsequent phases.
+ * Main entry point with client-side routing.
+ * Uses hash-based routing for simplicity (no server config needed).
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 
-export function App() {
-  return (
-    <div style={{ padding: '2rem', fontFamily: 'system-ui' }}>
-      <h1>Ralph</h1>
-      <p>Document anchoring system - Bedrock phase complete.</p>
-      <p>
-        See <code>docs/confluence/</code> for documentation.
-      </p>
-    </div>
-  );
+// Styles
+import './styles/main.css';
+
+// Pages
+import { AuthPage } from './pages/AuthPage';
+import { RoleSelectionPage } from './pages/RoleSelectionPage';
+import { OrgOnboardingPage } from './pages/OrgOnboardingPage';
+import { PendingReviewPage } from './pages/PendingReviewPage';
+import { VaultPage } from './pages/VaultPage';
+import { OrgDashboardPage } from './pages/OrgDashboardPage';
+
+/**
+ * Simple hash-based router
+ */
+function useHashRouter() {
+  const [path, setPath] = useState(window.location.hash.slice(1) || '/');
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setPath(window.location.hash.slice(1) || '/');
+    };
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  return path;
 }
 
+/**
+ * Route configuration
+ */
+const routes: Record<string, React.ComponentType> = {
+  '/': AuthPage,
+  '/auth': AuthPage,
+  '/onboarding/role': RoleSelectionPage,
+  '/onboarding/org': OrgOnboardingPage,
+  '/org/pending-review': PendingReviewPage,
+  '/vault': VaultPage,
+  '/org': OrgDashboardPage,
+};
+
+/**
+ * App Component
+ */
+export function App() {
+  const path = useHashRouter();
+
+  // Match route or fallback to auth
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const RouteComponent = routes[normalizedPath] || AuthPage;
+
+  return <RouteComponent />;
+}
+
+// Mount application
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
+
+// Override window.location.href assignments to use hash routing
+const originalHrefDescriptor = Object.getOwnPropertyDescriptor(window.location, 'href');
+if (originalHrefDescriptor) {
+  Object.defineProperty(window.location, 'href', {
+    ...originalHrefDescriptor,
+    set(value: string) {
+      // Convert path-based navigation to hash-based
+      if (value.startsWith('/') && !value.startsWith('//')) {
+        window.location.hash = value;
+      } else {
+        originalHrefDescriptor.set?.call(window.location, value);
+      }
+    },
+  });
+}
