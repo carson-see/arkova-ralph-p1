@@ -18,6 +18,7 @@ import { OrgOnboardingPage } from './pages/OrgOnboardingPage';
 import { PendingReviewPage } from './pages/PendingReviewPage';
 import { VaultPage } from './pages/VaultPage';
 import { OrgDashboardPage } from './pages/OrgDashboardPage';
+import { SettingsPage } from './pages/SettingsPage';
 
 /**
  * Simple hash-based router
@@ -48,6 +49,7 @@ const routes: Record<string, React.ComponentType> = {
   '/org/pending-review': PendingReviewPage,
   '/vault': VaultPage,
   '/org': OrgDashboardPage,
+  '/settings': SettingsPage,
 };
 
 /**
