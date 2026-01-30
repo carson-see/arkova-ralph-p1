@@ -1,91 +1,47 @@
 /**
  * Ralph Application Entry Point
  *
- * Main entry point with client-side routing.
- * Uses hash-based routing for simplicity (no server config needed).
+ * P1 (Bedrock) is complete.
+ * P2+ UI needs to be built with Tailwind + Shadcn/ui.
  */
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom/client';
-
-// Styles
-import './styles/main.css';
-
-// Pages
-import { AuthPage } from './pages/AuthPage';
-import { RoleSelectionPage } from './pages/RoleSelectionPage';
-import { OrgOnboardingPage } from './pages/OrgOnboardingPage';
-import { PendingReviewPage } from './pages/PendingReviewPage';
-import { VaultPage } from './pages/VaultPage';
-import { OrgDashboardPage } from './pages/OrgDashboardPage';
-import { SettingsPage } from './pages/SettingsPage';
-import { VerifyPage } from './pages/VerifyPage';
+import './index.css';
 
 /**
- * Simple hash-based router
+ * Placeholder App
+ * 
+ * P2 (Identity & Access) UI to be implemented with proper tech stack:
+ * - Tailwind CSS
+ * - Shadcn/ui components
+ * - Lucide React icons
  */
-function useHashRouter() {
-  const [path, setPath] = useState(window.location.hash.slice(1) || '/');
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      setPath(window.location.hash.slice(1) || '/');
-    };
-
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
-  return path;
+function App() {
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="text-center max-w-md p-8">
+        <h1 className="text-3xl font-bold text-primary mb-4">Arkova Ralph</h1>
+        <p className="text-muted-foreground mb-6">
+          Priority 1 (Bedrock) complete. Priority 2+ UI pending.
+        </p>
+        <div className="bg-card border rounded-lg p-4 text-left">
+          <h2 className="font-semibold mb-2">P1 Status ✅</h2>
+          <ul className="text-sm text-muted-foreground space-y-1">
+            <li>• Schema + Migrations</li>
+            <li>• RLS Policies</li>
+            <li>• Seed Data</li>
+            <li>• Validators + Tests</li>
+            <li>• Documentation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-/**
- * Route configuration
- */
-const routes: Record<string, React.ComponentType> = {
-  '/': AuthPage,
-  '/auth': AuthPage,
-  '/verify': VerifyPage,
-  '/onboarding/role': RoleSelectionPage,
-  '/onboarding/org': OrgOnboardingPage,
-  '/org/pending-review': PendingReviewPage,
-  '/vault': VaultPage,
-  '/org': OrgDashboardPage,
-  '/settings': SettingsPage,
-};
-
-/**
- * App Component
- */
-export function App() {
-  const path = useHashRouter();
-
-  // Match route or fallback to auth
-  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  const RouteComponent = routes[normalizedPath] || AuthPage;
-
-  return <RouteComponent />;
-}
-
-// Mount application
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
-
-// Override window.location.href assignments to use hash routing
-const originalHrefDescriptor = Object.getOwnPropertyDescriptor(window.location, 'href');
-if (originalHrefDescriptor) {
-  Object.defineProperty(window.location, 'href', {
-    ...originalHrefDescriptor,
-    set(value: string) {
-      // Convert path-based navigation to hash-based
-      if (value.startsWith('/') && !value.startsWith('//')) {
-        window.location.hash = value;
-      } else {
-        originalHrefDescriptor.set?.call(window.location, value);
-      }
-    },
-  });
-}
