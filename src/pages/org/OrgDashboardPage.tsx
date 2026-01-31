@@ -5,8 +5,8 @@
  * Shows org records and management options.
  */
 
-import { useState, useEffect } from 'react';
-import { FileText, Plus, Users, Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { FileText, Plus, Users, Loader2, UserPlus, Ban } from 'lucide-react';
 import { RoleRoute } from '@/components/auth/RouteGuard';
 import { useAuthContext } from '@/components/auth/AuthProvider';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
@@ -18,6 +18,9 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { ExportButton } from '@/components/org/ExportButton';
+import { InviteMemberModal } from '@/components/org/InviteMemberModal';
+import { RevokeAnchorDialog } from '@/components/anchor/RevokeAnchorDialog';
 import { supabase } from '@/lib/supabase';
 import {
   ANCHOR_STATUS_LABELS,
@@ -62,14 +65,25 @@ function OrgInfoCard({ org }: { org: Organization | null }) {
   return (
     <Card>
       <CardHeader className="pb-3">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
-            <Users className="h-5 w-5 text-primary" />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+              <Users className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <CardTitle className="text-base">{org.display_name}</CardTitle>
+              <CardDescription>{org.legal_name}</CardDescription>
+            </div>
           </div>
-          <div>
-            <CardTitle className="text-base">{org.display_name}</CardTitle>
-            <CardDescription>{org.legal_name}</CardDescription>
-          </div>
+          <InviteMemberModal
+            orgId={org.id}
+            trigger={
+              <Button variant="outline" size="sm">
+                <UserPlus className="mr-2 h-4 w-4" />
+                Invite Members
+              </Button>
+            }
+          />
         </div>
       </CardHeader>
       <CardContent>
@@ -95,31 +109,42 @@ function OrgRecordsList() {
   const { profile } = useAuthContext();
   const [anchors, setAnchors] = useState<Anchor[]>([]);
   const [loading, setLoading] = useState(true);
+  const [revokeTarget, setRevokeTarget] = useState<Anchor | null>(null);
 
-  useEffect(() => {
-    async function fetchAnchors() {
-      if (!profile?.org_id) {
-        setLoading(false);
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('anchors')
-        .select('*')
-        .eq('org_id', profile.org_id)
-        .is('deleted_at', null)
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Failed to fetch anchors:', error);
-      } else {
-        setAnchors(data || []);
-      }
+  const fetchAnchors = useCallback(async () => {
+    if (!profile?.org_id) {
       setLoading(false);
+      return;
     }
 
-    fetchAnchors();
+    const { data, error } = await supabase
+      .from('anchors')
+      .select('*')
+      .eq('org_id', profile.org_id)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Failed to fetch anchors:', error);
+    } else {
+      setAnchors(data || []);
+    }
+    setLoading(false);
   }, [profile?.org_id]);
+
+  useEffect(() => {
+    fetchAnchors();
+  }, [fetchAnchors]);
+
+  const handleRevokeClick = useCallback((anchor: Anchor, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent row click navigation
+    setRevokeTarget(anchor);
+  }, []);
+
+  const handleRevoked = useCallback(() => {
+    // Refresh the anchors list after successful revocation
+    fetchAnchors();
+  }, [fetchAnchors]);
 
   if (loading) {
     return (
@@ -151,51 +176,82 @@ function OrgRecordsList() {
     );
   }
 
+  // Check if an anchor can be revoked (only PENDING or SECURED)
+  const canRevoke = (anchor: Anchor) => {
+    return anchor.status === 'PENDING' || anchor.status === 'SECURED';
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle>Organization Records</CardTitle>
-          <Button size="sm">
-            <Plus className="mr-2 h-4 w-4" />
-            {ACTION_LABELS.CREATE_ANCHOR}
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          {anchors.map((anchor) => (
-            <div
-              key={anchor.id}
-              className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer"
-            >
-              <div className="flex items-center gap-3 min-w-0">
-                <FileText className="h-8 w-8 text-muted-foreground flex-shrink-0" />
-                <div className="min-w-0">
-                  <p className="font-medium truncate">{anchor.filename}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {new Date(anchor.created_at).toLocaleDateString()}
-                    {anchor.file_size && (
-                      <span className="ml-2">
-                        • {formatFileSize(anchor.file_size)}
-                      </span>
-                    )}
-                  </p>
+    <>
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Organization Records</CardTitle>
+            <div className="flex items-center gap-2">
+              <ExportButton />
+              <Button size="sm">
+                <Plus className="mr-2 h-4 w-4" />
+                {ACTION_LABELS.CREATE_ANCHOR}
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            {anchors.map((anchor) => (
+              <div
+                key={anchor.id}
+                className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer"
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <FileText className="h-8 w-8 text-muted-foreground flex-shrink-0" />
+                  <div className="min-w-0">
+                    <p className="font-medium truncate">{anchor.filename}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {new Date(anchor.created_at).toLocaleDateString()}
+                      {anchor.file_size && (
+                        <span className="ml-2">
+                          • {formatFileSize(anchor.file_size)}
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {anchor.legal_hold && (
+                    <span className="text-xs text-orange-600 font-medium">
+                      Legal Hold
+                    </span>
+                  )}
+                  <StatusBadge status={anchor.status} />
+                  {canRevoke(anchor) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={(e) => handleRevokeClick(anchor, e)}
+                      className="text-red-600 hover:text-red-700 hover:bg-red-500/10"
+                      title="Revoke anchor"
+                    >
+                      <Ban className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                {anchor.legal_hold && (
-                  <span className="text-xs text-orange-600 font-medium">
-                    Legal Hold
-                  </span>
-                )}
-                <StatusBadge status={anchor.status} />
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Revoke Anchor Dialog */}
+      {revokeTarget && (
+        <RevokeAnchorDialog
+          open={!!revokeTarget}
+          onClose={() => setRevokeTarget(null)}
+          anchor={revokeTarget}
+          onRevoked={handleRevoked}
+        />
+      )}
+    </>
   );
 }
 

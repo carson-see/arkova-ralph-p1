@@ -145,7 +145,7 @@ function RecordsList() {
           <p className="text-muted-foreground mb-6">
             {EMPTY_STATES.NO_RECORDS_DESC}
           </p>
-          <Button>
+          <Button onClick={() => (window.location.hash = '/vault/create')}>
             <Plus className="mr-2 h-4 w-4" />
             {ACTION_LABELS.CREATE_ANCHOR}
           </Button>
@@ -159,7 +159,7 @@ function RecordsList() {
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle>Your Records</CardTitle>
-          <Button size="sm">
+          <Button size="sm" onClick={() => (window.location.hash = '/vault/create')}>
             <Plus className="mr-2 h-4 w-4" />
             {ACTION_LABELS.CREATE_ANCHOR}
           </Button>
@@ -171,6 +171,14 @@ function RecordsList() {
             <div
               key={anchor.id}
               className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors cursor-pointer"
+              onClick={() => (window.location.hash = `/vault/anchor/${anchor.id}`)}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  window.location.hash = `/vault/anchor/${anchor.id}`;
+                }
+              }}
             >
               <div className="flex items-center gap-3 min-w-0">
                 <FileText className="h-8 w-8 text-muted-foreground flex-shrink-0" />

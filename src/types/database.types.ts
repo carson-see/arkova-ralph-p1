@@ -267,6 +267,12 @@ export interface Database {
         Args: Record<string, never>;
         Returns: boolean;
       };
+      revoke_anchor: {
+        Args: {
+          p_anchor_id: string;
+        };
+        Returns: Json;
+      };
       update_profile_onboarding: {
         Args: {
           p_role: UserRole;

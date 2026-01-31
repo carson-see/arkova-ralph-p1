@@ -14,8 +14,11 @@ import { AuthPage } from '@/pages/AuthPage';
 import { RoleSelectionPage } from '@/pages/onboarding/RoleSelectionPage';
 import { OrgSetupPage } from '@/pages/onboarding/OrgSetupPage';
 import { VaultPage } from '@/pages/vault/VaultPage';
+import { CreateAnchorPage } from '@/pages/vault/CreateAnchorPage';
+import { AnchorDetailPage } from '@/pages/vault/AnchorDetailPage';
 import { AffiliationsPage } from '@/pages/vault/AffiliationsPage';
 import { OrgDashboardPage } from '@/pages/org/OrgDashboardPage';
+import { OrgRegistryPage } from '@/pages/org/OrgRegistryPage';
 import { PendingReviewPage } from '@/pages/org/PendingReviewPage';
 
 /**
@@ -60,9 +63,9 @@ function PlaceholderPage({ title }: { title: string }) {
 }
 
 /**
- * Route configuration
+ * Route configuration - static routes
  */
-const routes: Record<string, React.ComponentType> = {
+const staticRoutes: Record<string, React.ComponentType> = {
   '/': AuthPage,
   '/auth': AuthPage,
   '/auth/callback': AuthPage,
@@ -71,12 +74,14 @@ const routes: Record<string, React.ComponentType> = {
   '/onboarding/role': RoleSelectionPage,
   '/onboarding/org': OrgSetupPage,
   
-  // Individual Vault (P3)
+  // Individual Vault (P3, P4)
   '/vault': VaultPage,
+  '/vault/create': CreateAnchorPage,
   '/affiliations': AffiliationsPage,
   
-  // Organization (P5 placeholder)
+  // Organization (P5)
   '/org': OrgDashboardPage,
+  '/org/registry': OrgRegistryPage,
   '/org/pending-review': PendingReviewPage,
   '/org/settings': () => <PlaceholderPage title="Organization Settings" />,
   
@@ -86,14 +91,45 @@ const routes: Record<string, React.ComponentType> = {
 };
 
 /**
+ * Dynamic route patterns (regex + component)
+ */
+const dynamicRoutes: Array<{ pattern: RegExp; component: React.ComponentType }> = [
+  // /vault/anchor/:id - Anchor detail page (P4-S3)
+  { pattern: /^\/vault\/anchor\/[a-f0-9-]+$/i, component: AnchorDetailPage },
+];
+
+/**
+ * Match a path to a route component
+ */
+function matchRoute(path: string): React.ComponentType {
+  // Strip query params for matching
+  const pathWithoutQuery = path.split('?')[0];
+  
+  // Try static routes first
+  if (staticRoutes[pathWithoutQuery]) {
+    return staticRoutes[pathWithoutQuery];
+  }
+  
+  // Try dynamic routes
+  for (const { pattern, component } of dynamicRoutes) {
+    if (pattern.test(pathWithoutQuery)) {
+      return component;
+    }
+  }
+  
+  // Default to auth
+  return AuthPage;
+}
+
+/**
  * App with routing
  */
 function App() {
   const path = useHashRouter();
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   
-  // Find matching route or default to auth
-  const RouteComponent = routes[normalizedPath] || AuthPage;
+  // Find matching route (static or dynamic) or default to auth
+  const RouteComponent = matchRoute(normalizedPath);
 
   return (
     <AuthProvider>
